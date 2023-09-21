@@ -9,21 +9,19 @@ function TicTacToe() {
 
   const [myTurnBackground, setTurn] = useState(true);
   const toggleBackground = () => {
+    // Toggle with true and false; true for 'X' and false for 'O'.
     setTurn(!myTurnBackground);
   };
+
+  // Added winningCombination to store the winning squares' indices
+  const winningCombination = calculateWinner(board);
+  const isGameWon = winningCombination !== null;
 
   const handleClick = (index) => {
     const squares = [...board]; // using spread operator to copy the elements from an existing array called 'board'.
 
-    if (calculateWinner(squares)) {
-        // *** Write your code here ***  
-
-        // bade zabit el win lign 
-        // winbBackground = "win-background"
+    if (isGameWon || squares[index]) {
       return;
-    }
-    if (squares[index]) {
-        return;
     }
 
     squares[index] = xIsNext ? "X" : "O";
@@ -40,8 +38,13 @@ function TicTacToe() {
   };
 
   const renderSquare = (index) => {
+    // check if this is a winning square
+    const isWinningSquare = winningCombination ? winner.includes(index) : false;
     return (
-      <div className="box align" onClick={() => handleClick(index)}>
+      <div
+        className={`box align ${isWinningSquare ? "winning-squares" : ""}`}
+        onClick={() => handleClick(index)}
+      >
         {board[index]}
       </div>
     );
@@ -56,20 +59,8 @@ function TicTacToe() {
     <div>
       <div class="turn-container">
         <h3>Turn For</h3>
-        <div
-          className={`turn-box align ${
-            myTurnBackground ? "turn-background" : ""
-          }`}
-        >
-          X
-        </div>
-        <div
-          className={`turn-box align ${
-            myTurnBackground ? "" : "turn-background"
-          }`}
-        >
-          O
-        </div>
+        <div className={`turn-box align ${myTurnBackground ? "turn-background" : ""}`}>X</div>
+        <div className={`turn-box align ${myTurnBackground ? "" : "turn-background"}`}>O</div>
         <div className="bg"></div>
       </div>
       <div className="main-grid">

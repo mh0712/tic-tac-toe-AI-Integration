@@ -95,26 +95,6 @@ body {
   background-color: #ff2e63;
 }
 
-.win-background {
+.winning-squares {
   background-color: #08d9d6;
-}
-
-/* old code */
-
-.square {
-  font-size: 24px;
-  width: 50px;
-  height: 50px;
-  text-align: center;
-  vertical-align: middle;
-  border: 1px solid #999;
-}
-
-.status {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.board-row {
-  display: flex;
 }
