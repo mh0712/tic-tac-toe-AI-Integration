@@ -1,37 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../scss/TicTacToe.css";
-import { calculateWinner } from "./CalculateWinner";
+import { CalculateWinner } from "./CalculateWinner";
 import { ReplayButton } from "./ReplayButton";
+import { Minimax } from "./Minimax";
 
 function TicTacToe() {
-  const [board, setBoard] = useState(Array(9).fill(null)); // creating an array of 9 elements, all initialized to null
+  let ai = "O";
+  let human = "X";
+
+  // Creating an array of 9 elements, all initialized to null.
+  const [board, setBoard] = useState(Array(9).fill(null)); 
   const [xIsNext, setXIsNext] = useState(true);
 
   const [myTurnBackground, setTurn] = useState(true);
-  const toggleBackground = () => {
-    // Toggle with true and false; true for 'X' and false for 'O'.
-    setTurn(!myTurnBackground);
-  };
 
-  // Added winningCombination to store the winning squares' indices
-  const winningCombination = calculateWinner(board);
-  const isGameWon = winningCombination !== null;
+  // Added winningIndexes to store the winning squares indices
+  const winningIndexes = CalculateWinner(board);
+  const isGameWon = winningIndexes !== null;
 
+  // Considering the ai and the human both do clicks
   const handleClick = (index) => {
-    const squares = [...board]; // using spread operator to copy the elements from an existing array called 'board'.
-
-    if (isGameWon || squares[index]) {
+    if (isGameWon || board[index]) {
       return;
     }
 
-    squares[index] = xIsNext ? "X" : "O";
+    const squares = [...board]; // using spread operator to copy the elements from an existing array called 'board'.
+
+    squares[index] = xIsNext ? human : ai;
     setBoard(squares);
     setXIsNext(!xIsNext);
-    toggleBackground();
   };
+  // ################
+  //  AI Turn
+  // ################
+  useEffect(() => {
+    if (!xIsNext) {
+      // AI's turn
+      const squares = [...board];
+      let bestScore = -Infinity;
+      let bestMove = null;
 
+      for (let i = 0; i < squares.length; i++) {
+        if (!squares[i]) {
+          squares[i] = ai;
+          const score = Minimax(squares, human, ai, false); // Minimax with depth parameter
+          squares[i] = null;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestMove = i;
+          }
+        }
+      }
+
+      if (bestMove !== null) {
+        squares[bestMove] = ai;
+        setBoard(squares);
+        setXIsNext(true); // Set it back to the human's turn
+      }
+    }
+  }, [xIsNext, board]);
+
+
+  // Reset the board to its default state.
   const handleReplayClick = () => {
-    // Reset the board to its default state.
     setBoard(Array(9).fill(null));
     setXIsNext(true);
     setTurn(true);
@@ -39,7 +71,7 @@ function TicTacToe() {
 
   const renderSquare = (index) => {
     // check if this is a winning square
-    const isWinningSquare = winningCombination ? winner.includes(index) : false;
+    const isWinningSquare = winningIndexes ? winningIndexes.includes(index) : false;
     return (
       <div
         className={`box align ${isWinningSquare ? "winning-squares" : ""}`}
@@ -50,17 +82,29 @@ function TicTacToe() {
     );
   };
 
-  const winner = calculateWinner(board);
-  const status = winner
-    ? `Winner: ${board[winner[0]]}`
+  // const winner = CalculateWinner(board);
+  const status = winningIndexes
+    ? `Winner: ${board[winningIndexes[0]]}`
     : `Next player: ${xIsNext ? "X" : "O"}`;
 
   return (
     <div>
-      <div class="turn-container">
+      <div className="turn-container">
         <h3>Turn For</h3>
-        <div className={`turn-box align ${myTurnBackground ? "turn-background" : ""}`}>X</div>
-        <div className={`turn-box align ${myTurnBackground ? "" : "turn-background"}`}>O</div>
+        <div
+          className={`turn-box align ${
+            myTurnBackground ? "turn-background" : ""
+          }`}
+        >
+          X
+        </div>
+        <div
+          className={`turn-box align ${
+            myTurnBackground ? "" : "turn-background"
+          }`}
+        >
+          O
+        </div>
         <div className="bg"></div>
       </div>
       <div className="main-grid">
