@@ -4,38 +4,36 @@ import { CalculateWinner } from "./CalculateWinner";
 import { ReplayButton } from "./ReplayButton";
 import { Minimax } from "./Minimax";
 
-function TicTacToe() {
+export function TicTacToe() {
   let ai = "O";
   let human = "X";
 
-  // Creating an array of 9 elements, all initialized to null.
-  const [board, setBoard] = useState(Array(9).fill(null)); 
-  const [xIsNext, setXIsNext] = useState(true);
-
+  // Initial state
+  const initialBoard = Array(9).fill(null);
+  const startPlayer = true;
+  const [board, setBoard] = useState(initialBoard); 
+  const [xIsNext, setXIsNext] = useState(startPlayer);
   const [myTurnBackground, setTurn] = useState(true);
 
-  // Added winningIndexes to store the winning squares indices
+  // Check if the game is won
   const winningIndexes = CalculateWinner(board);
   const isGameWon = winningIndexes !== null;
 
-  // Considering the ai and the human both do clicks
+  // Handle square click
   const handleClick = (index) => {
     if (isGameWon || board[index]) {
       return;
     }
 
-    const squares = [...board]; // using spread operator to copy the elements from an existing array called 'board'.
-
+    const squares = [...board]; 
     squares[index] = xIsNext ? human : ai;
     setBoard(squares);
     setXIsNext(!xIsNext);
   };
-  // ################
-  //  AI Turn
-  // ################
+
+  // AI's turn using useEffect
   useEffect(() => {
-    if (!xIsNext) {
-      // AI's turn
+    if (!xIsNext && !isGameWon) {
       const squares = [...board];
       let bestScore = -Infinity;
       let bestMove = null;
@@ -43,7 +41,8 @@ function TicTacToe() {
       for (let i = 0; i < squares.length; i++) {
         if (!squares[i]) {
           squares[i] = ai;
-          const score = Minimax(squares, human, ai, false); // Minimax with depth parameter
+          const score = Minimax(squares, ai, human, false); 
+          console.log('this is the ' + score)
           squares[i] = null;
 
           if (score > bestScore) {
@@ -56,22 +55,22 @@ function TicTacToe() {
       if (bestMove !== null) {
         squares[bestMove] = ai;
         setBoard(squares);
-        setXIsNext(true); // Set it back to the human's turn
+        setXIsNext(true);
       }
     }
-  }, [xIsNext, board]);
+  }, [xIsNext, board, isGameWon]);
 
-
-  // Reset the board to its default state.
+  // Reset the board.
   const handleReplayClick = () => {
     setBoard(Array(9).fill(null));
-    setXIsNext(true);
+    setXIsNext(startPlayer);
     setTurn(true);
   };
 
+  // render a square
   const renderSquare = (index) => {
-    // check if this is a winning square
-    const isWinningSquare = winningIndexes ? winningIndexes.includes(index) : false;
+    // Check if this is a winning square
+    const isWinningSquare = winningIndexes ? winningIndexes[1].includes(index) : false;
     return (
       <div
         className={`box align ${isWinningSquare ? "winning-squares" : ""}`}
@@ -82,9 +81,9 @@ function TicTacToe() {
     );
   };
 
-  // const winner = CalculateWinner(board);
+  // Determine game status
   const status = winningIndexes
-    ? `Winner: ${board[winningIndexes[0]]}`
+    ? `Winner: ${board[winningIndexes[1][0]]}`
     : `Next player: ${xIsNext ? "X" : "O"}`;
 
   return (
@@ -92,19 +91,8 @@ function TicTacToe() {
       <div className="turn-container">
         <h3>Turn For</h3>
         <div
-          className={`turn-box align ${
-            myTurnBackground ? "turn-background" : ""
-          }`}
-        >
-          X
-        </div>
-        <div
-          className={`turn-box align ${
-            myTurnBackground ? "" : "turn-background"
-          }`}
-        >
-          O
-        </div>
+          className={`turn-box align ${myTurnBackground ? "turn-background" : ""}`}>X</div>
+        <div className={`turn-box align ${myTurnBackground ? "" : "turn-background"}`}>O</div>
         <div className="bg"></div>
       </div>
       <div className="main-grid">
