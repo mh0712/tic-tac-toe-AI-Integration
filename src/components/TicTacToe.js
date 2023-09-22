@@ -10,10 +10,11 @@ export function TicTacToe() {
 
   // Initial state
   const initialBoard = Array(9).fill(null);
-  const startPlayer = true;
+  // let startPlayer = true;
   const [board, setBoard] = useState(initialBoard); 
+  const [startPlayer, setStartPlayer] = useState(true);
   const [xIsNext, setXIsNext] = useState(startPlayer);
-  const [myTurnBackground, setTurn] = useState(true);
+  const [myTurnBackground, setMyTurnBackground] = useState(true);
 
   // Check if the game is won
   const winningIndexes = CalculateWinner(board);
@@ -42,7 +43,6 @@ export function TicTacToe() {
         if (!squares[i]) {
           squares[i] = ai;
           const score = Minimax(squares, ai, human, false); 
-          console.log('this is the ' + score)
           squares[i] = null;
 
           if (score > bestScore) {
@@ -64,7 +64,6 @@ export function TicTacToe() {
   const handleReplayClick = () => {
     setBoard(Array(9).fill(null));
     setXIsNext(startPlayer);
-    setTurn(true);
   };
 
   // render a square
@@ -86,13 +85,26 @@ export function TicTacToe() {
     ? `Winner: ${board[winningIndexes[1][0]]}`
     : `Next player: ${xIsNext ? "X" : "O"}`;
 
+  // Handling the player's turn
+  const handleTurnFor = () => {
+    setMyTurnBackground(!myTurnBackground)
+    setStartPlayer(!startPlayer)
+    setBoard(Array(9).fill(null));
+    setXIsNext(!startPlayer);
+  }
+
   return (
     <div>
       <div className="turn-container">
         <h3>Turn For</h3>
         <div
-          className={`turn-box align ${myTurnBackground ? "turn-background" : ""}`}>X</div>
-        <div className={`turn-box align ${myTurnBackground ? "" : "turn-background"}`}>O</div>
+          onClick={handleTurnFor}
+          className={`turn-box align ${myTurnBackground ? "turn-background" : ""}`}
+          >X</div>
+        <div 
+          onClick={handleTurnFor}
+          className={`turn-box align ${!myTurnBackground ? "turn-background" : ""}`}
+          >O</div>
         <div className="bg"></div>
       </div>
       <div className="main-grid">
